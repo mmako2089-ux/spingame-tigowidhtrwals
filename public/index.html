@@ -11,25 +11,16 @@
             background: linear-gradient(135deg, #0f172a, #020617);
             color: #f1f5f9;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            justify-content: space-between;
             min-height: 100vh;
         }
         
-        .game {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            width: 420px;
-        }
-        
         .header {
+            padding: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
         
         .balance {
@@ -43,32 +34,42 @@
         
         .wheel-container {
             position: relative;
-            margin: 20px auto;
-            width: 320px;
-            height: 320px;
+            margin: auto;
+            width: 90vw;
+            height: 90vw;
+            max-width: 90vh;
+            max-height: 90vh;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .pointer {
             position: absolute;
-            top: -18px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-bottom: 30px solid #22c55e;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid #22c55e;
             z-index: 2;
         }
         
         canvas {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             background: #0b1220;
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
         }
         
         .controls {
-            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.9);
         }
         
         button {
@@ -84,7 +85,6 @@
         
         #withdrawBtn {
             background: #16a34a;
-            /* green */
         }
         
         button:disabled {
@@ -93,28 +93,27 @@
         }
         
         .result {
-            margin-top: 12px;
-            min-height: 30px;
+            margin-top: 8px;
             font-size: 16px;
         }
     </style>
 </head>
 
 <body>
-    <div class="game">
-        <div class="header">
-            <h2>🎡 Spinning Wheel</h2>
-            <div class="balance">⚖️ Balance: <span id="balance">100000</span> TSh</div>
-        </div>
-        <div class="wheel-container">
-            <div class="pointer"></div>
-            <canvas id="wheel" width="320" height="320"></canvas>
-        </div>
-        <div class="controls">
-            <button id="spinBtn">Spin (Cost 50 TSh)</button>
-            <button id="withdrawBtn">Withdraw</button>
-            <button id="resetBtn">Reset</button>
-        </div>
+    <div class="header">
+        <h2>🎡 Spinning Wheel</h2>
+        <div class="balance">⚖️ Balance: <span id="balance">100000</span> TSh</div>
+    </div>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheel"></canvas>
+    </div>
+
+    <div class="controls">
+        <button id="spinBtn">Spin (Cost 50 TSh)</button>
+        <button id="withdrawBtn">Withdraw</button>
+        <button id="resetBtn">Reset</button>
         <div class="result" id="result">—</div>
     </div>
 
@@ -127,7 +126,7 @@
         const balanceEl = document.getElementById("balance");
         const resultEl = document.getElementById("result");
 
-        let balance = 100000; // starting balance in TSh
+        let balance = 100000;
         let spinning = false;
         let angle = 0;
 
@@ -166,35 +165,47 @@
             color: "#3730a3"
         }];
 
+        function resizeCanvas() {
+            const container = document.querySelector(".wheel-container");
+            const size = Math.min(container.offsetWidth, container.offsetHeight);
+            canvas.width = size;
+            canvas.height = size;
+            drawWheel();
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
         function drawWheel() {
             const n = segments.length;
             const arc = (2 * Math.PI) / n;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = canvas.width / 2 - 10;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             segments.forEach((seg, i) => {
                 const start = angle + i * arc;
                 const end = start + arc;
                 ctx.beginPath();
-                ctx.moveTo(160, 160);
-                ctx.arc(160, 160, 150, start, end);
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, start, end);
                 ctx.closePath();
                 ctx.fillStyle = seg.color;
                 ctx.fill();
                 ctx.stroke();
 
-                // Labels
                 ctx.save();
-                ctx.translate(160, 160);
+                ctx.translate(cx, cy);
                 ctx.rotate(start + arc / 2);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "#f1f5f9";
-                ctx.font = "14px Arial";
-                ctx.fillText(seg.label, 140, 5);
+                ctx.font = `${Math.floor(canvas.width / 25)}px Arial`;
+                ctx.fillText(seg.label, radius - 10, 5);
                 ctx.restore();
             });
         }
-
-        drawWheel();
 
         function spin() {
             if (spinning || balance < spinCost) return;
@@ -202,7 +213,7 @@
             balance -= spinCost;
             balanceEl.textContent = balance;
 
-            const spins = 4 + Math.floor(Math.random() * 3); // 4–6 turns
+            const spins = 4 + Math.floor(Math.random() * 3);
             const extra = Math.random() * 2 * Math.PI;
             const target = angle + spins * 2 * Math.PI + extra;
             const duration = 4000;
@@ -211,7 +222,7 @@
             function animate(t) {
                 const elapsed = t - start;
                 const progress = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const ease = 1 - Math.pow(1 - progress, 3);
                 const current = angle + ease * (target - angle);
 
                 ctx.save();
